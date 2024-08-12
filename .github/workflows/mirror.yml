@@ -1,0 +1,33 @@
+name: Mirror Repository
+
+on:
+  push:
+    branches:
+      - main  # Trigger this workflow on push to the main branch
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Repository
+      uses: actions/checkout@v2
+      with:
+        repository: priyaaa5/source
+        token: ${{ secrets.demo_pass }}
+        fetch-depth: 0  # Fetch all history
+
+    - name: Add All Source Branches
+      run: |
+        git remote add source https://github.com/priyaaa5/source.git
+        git fetch source
+        for branch in $(git branch -r | grep -v '\->' | grep 'source/' | sed 's/source\///'); do
+          git checkout --track source/$branch || git checkout $branch
+          git push origin $branch
+        done
+
+    - name: Push to Target Repository
+      run: |
+        git remote set-url origin https://${{ secrets.demo_pass }}@github.com/priyaaa5/target.git
+        git push --all origin
+        git push --tags origin
