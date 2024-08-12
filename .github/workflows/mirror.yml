@@ -26,8 +26,13 @@ jobs:
           git push origin $branch
         done
 
+    - name: Configure Git to Use Token
+      run: git remote set-url origin https://${{ secrets.demo_pass }}@github.com/priyaaa5/target.git
+
+    - name: Pull from Target Repository
+      run: git pull origin main --rebase
+
     - name: Push to Target Repository
       run: |
-        git remote set-url origin https://${{ secrets.demo_pass }}@github.com/priyaaa5/target.git
         git push --all origin
         git push --tags origin
